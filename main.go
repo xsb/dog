@@ -35,8 +35,7 @@ func main() {
 			fmt.Printf("%s\t%s\n", k, t.Description)
 		}
 	} else {
-		// TODO check that task exists
 		task := taskList[arg]
-		dog.ExecTask(task)
+		dog.GetExecutor("sh").Exec(&task, os.Stdout)
 	}
 }
