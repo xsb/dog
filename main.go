@@ -15,38 +15,12 @@ import (
 type TaskList []Task
 
 type Task struct {
-	Task        string `json:"task,omitempty"`
+	Name        string `json:"task,omitempty"`
 	Description string `json:"description,omitempty"`
 	Run         string `json:"run,omitempty"`
 }
 
-// var tl = TaskList{
-// 	Task{
-// 		Task:        "hello",
-// 		Description: "Say Hello!",
-// 		Run:         "echo hello world",
-// 	},
-// 	Task{
-// 		Task:        "bye",
-// 		Description: "Good Bye!",
-// 		Run:         "echo bye cruel world",
-// 	},
-// }
-
-var tm = map[string]Task{
-	"hello": Task{
-		Description: "Say Hello!",
-		Run:         "echo hello world",
-	},
-	"bye": Task{
-		Description: "Good Bye!",
-		Run:         "echo bye cruel world",
-	},
-	"find": Task{
-		Description: "List all files in $HOME directory",
-		Run:         "find /home/xavi",
-	},
-}
+var tm = map[string]Task{}
 
 func loadDogFile() (tl TaskList, err error) {
 	var dat []byte
@@ -59,6 +33,12 @@ func loadDogFile() (tl TaskList, err error) {
 	if err != nil {
 		return
 	}
+
+	// TODO create the map while reading the Dogfile
+	for _, t := range tl {
+		tm[t.Name] = t
+	}
+
 	return
 }
 
@@ -76,7 +56,7 @@ func main() {
 		}
 	} else {
 		// TODO check that task exists
-		task := tm[arg].Task
+		task := tm[arg].Name
 		run := tm[arg].Run
 		duration := dog.ExecTask(task, []byte(run))
 		fmt.Println(duration.Seconds())
