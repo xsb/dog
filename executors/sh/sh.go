@@ -25,10 +25,11 @@ func init() {
 // Exec executes the created tmp script and writes the output to the writer.
 func (sh *Sh) Exec(t *dog.Task, w io.Writer) error {
 	if err := t.ToDisk(); err != nil {
-		panic(err)
+		return err
 	}
 
 	defer func() {
+		w.Write([]byte("=== Task " + t.Name + " finished ===\n"))
 		// Remove temporary script
 		err := os.Remove(t.Path)
 		if err != nil {
@@ -42,16 +43,29 @@ func (sh *Sh) Exec(t *dog.Task, w io.Writer) error {
 	}
 
 	cmd := exec.Command(binary, string(t.Run))
-	cmdReader, err := cmd.StdoutPipe()
+	stdoutReader, err := cmd.StdoutPipe()
 	if err != nil {
 		return err
 	}
 
-	// Collect and print STDOUT
-	scanner := bufio.NewScanner(cmdReader)
+	stderrReader, err := cmd.StderrPipe()
+	if err != nil {
+		return err
+	}
+
+	stdoutScanner := bufio.NewScanner(stdoutReader)
+	stderrScanner := bufio.NewScanner(stderrReader)
 	go func() {
-		for scanner.Scan() {
-			w.Write(scanner.Bytes())
+		for stdoutScanner.Scan() {
+			msg := "\033[34m --= MSG: " + stdoutScanner.Text() + "\n\033[0m"
+			w.Write([]byte(msg))
+		}
+	}()
+
+	go func() {
+		for stderrScanner.Scan() {
+			msg := "\033[31m --= ERR: " + stderrScanner.Text() + "\n\033[0m"
+			w.Write([]byte(msg))
 		}
 	}()
 
@@ -59,6 +73,7 @@ func (sh *Sh) Exec(t *dog.Task, w io.Writer) error {
 	if err != nil {
 		return err
 	}
+	w.Write([]byte("=== Task " + t.Name + " started ===\n"))
 
 	err = cmd.Wait()
 	if err != nil {

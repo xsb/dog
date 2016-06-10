@@ -6,7 +6,7 @@ import "io"
 type Executor interface {
 	// Exec executes the task and writes command
 	// output to the writer.
-	Exec(*Task, io.Writer)
+	Exec(*Task, io.Writer) error
 }
 
 // executors holds a relation of the allowed executors.
