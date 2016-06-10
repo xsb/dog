@@ -11,19 +11,19 @@ var taskList = map[string]dog.Task{
 	"hello": {
 		Name:        "hello",
 		Description: "Say Hello!",
-		Time:        false,
+		Duration:    false,
 		Run:         []byte("echo hello world"),
 	},
 	"bye": {
 		Name:        "bye",
 		Description: "Good Bye!",
-		Time:        true,
+		Duration:    true,
 		Run:         []byte("echo bye cruel world"),
 	},
 	"find": {
 		Name:        "find",
 		Description: "List all files in $HOME directory",
-		Time:        true,
+		Duration:    true,
 		Run:         []byte("find /home/xavi"),
 	},
 }

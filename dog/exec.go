@@ -12,7 +12,7 @@ import (
 type Task struct {
 	Name        string
 	Description string
-	Time        bool
+	Duration    bool
 	Run         []byte
 }
 
@@ -49,7 +49,7 @@ func ExecTask(t Task) {
 	}()
 
 	// Start and wait until it finishes
-	if t.Time {
+	if t.Duration {
 		startTime = time.Now()
 	}
 	err = cmd.Start()
@@ -61,7 +61,7 @@ func ExecTask(t Task) {
 	if err != nil {
 		panic(err)
 	}
-	if t.Time {
+	if t.Duration {
 		duration := time.Now().Sub(startTime)
 		fmt.Println(duration.Seconds())
 	}
