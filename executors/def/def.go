@@ -38,6 +38,7 @@ func (def *Default) Exec(t *dog.Task, w io.Writer) error {
 			if err != nil {
 				w.Write([]byte(err.Error() + "\n"))
 			}
+			w.Write([]byte(" - " + t.Name + " finished with status code\n"))
 		}()
 	}()
 
@@ -59,7 +60,6 @@ func (def *Default) Exec(t *dog.Task, w io.Writer) error {
 	if err = cmd.Wait(); err != nil {
 		return err
 	}
-	w.Write([]byte("=== Task " + t.Name + " finished ===\n"))
 
 	return nil
 }
