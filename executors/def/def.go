@@ -54,7 +54,7 @@ func (def *Default) Exec(t *dog.Task, w io.Writer) error {
 	if err = cmd.Start(); err != nil {
 		return err
 	}
-	w.Write([]byte("=== Task " + t.Name + " started ===\n"))
+	w.Write([]byte(" - " + t.Name + " started\n"))
 
 	if err = cmd.Wait(); err != nil {
 		return err
