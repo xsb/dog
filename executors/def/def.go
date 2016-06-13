@@ -79,15 +79,13 @@ func gatherCmdOutput(cmd *exec.Cmd, w io.Writer) error {
 	stderrScanner := bufio.NewScanner(stderrReader)
 	go func() {
 		for stdoutScanner.Scan() {
-			msg := "\033[34m --= MSG: " + stdoutScanner.Text() + "\n\033[0m"
-			w.Write([]byte(msg))
+			w.Write([]byte(stdoutScanner.Text() + "\n"))
 		}
 	}()
 
 	go func() {
 		for stderrScanner.Scan() {
-			msg := "\033[31m --= ERR: " + stderrScanner.Text() + "\n\033[0m"
-			w.Write([]byte(msg))
+			w.Write([]byte(stderrScanner.Text() + "\n"))
 		}
 	}()
 
