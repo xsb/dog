@@ -1,13 +1,12 @@
 package executor
 
 import (
-	"fmt"
-	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"runtime"
 	"syscall"
+	"time"
 
 	"github.com/xsb/dog/types"
 )
@@ -50,8 +49,7 @@ func NewExecutor(cmd string) *Executor {
 }
 
 // Exec executes the created tmp script and writes the output to the writer.
-func (ex *Executor) Exec(t *types.Task, w io.Writer) error {
-
+func (ex *Executor) Exec(t *types.Task, eventsChan chan types.ExecutionEvent) error {
 	f, err := writeTempFile("", "dog", t.Run, 0644)
 	if err != nil {
 		return err
@@ -64,10 +62,14 @@ func (ex *Executor) Exec(t *types.Task, w io.Writer) error {
 
 	cmd := exec.Command(binary, f.Name())
 
-	w.Write([]byte(" - " + t.Name + " started\n"))
+	eventsChan <- &types.TaskStartEvent{
+		t.Name,
+		time.Now(),
+	}
 
 	statusCode := 0
-	if output, err := cmd.CombinedOutput(); err != nil {
+	output, err := cmd.CombinedOutput()
+	if err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {
 			if waitStatus, ok := exitError.Sys().(syscall.WaitStatus); !ok {
 				// For unknown error status codes set it to 1
@@ -76,14 +78,19 @@ func (ex *Executor) Exec(t *types.Task, w io.Writer) error {
 				statusCode = waitStatus.ExitStatus()
 			}
 		}
-		w.Write(output)
-		w.Write([]byte("\n" + err.Error() + "\n"))
-	} else {
-		w.Write(output)
+		output = append(output, []byte(err.Error())...)
 	}
 
-	msg := fmt.Sprintf(" - %s finished with status code %d\n", t.Name, statusCode)
-	w.Write([]byte(msg))
+	eventsChan <- &types.OutputEvent{
+		t.Name,
+		output,
+	}
+
+	eventsChan <- &types.TaskEndEvent{
+		t.Name,
+		time.Now(),
+		statusCode,
+	}
 
 	if err := os.Remove(f.Name()); err != nil {
 		return err

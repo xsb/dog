@@ -22,6 +22,7 @@ func printTasks(tm types.TaskMap) {
 }
 
 func main() {
+	ec := make(chan types.ExecutionEvent)
 	switch {
 
 	// dog
@@ -56,11 +57,30 @@ func main() {
 				e = executor.SystemExecutor
 			}
 
-			if err := e.Exec(&task, os.Stdout); err != nil {
-				fmt.Println(err)
-			}
+			go func() {
+				if err := e.Exec(&task, ec); err != nil {
+					fmt.Println(err)
+				}
+			}()
 		} else {
 			fmt.Println("No task named " + taskName)
+		}
+	}
+
+	for {
+		select {
+		case event := <-ec:
+			switch e := event.(type) {
+			case *types.TaskStartEvent:
+				fmt.Println(" - " + e.Task + " started")
+			case *types.OutputEvent:
+				fmt.Println(string(e.Body))
+			case *types.TaskEndEvent:
+				fmt.Println(
+					fmt.Sprintf(" - %s finished with status code %d", e.Task, e.StatusCode),
+				)
+				return
+			}
 		}
 	}
 }
