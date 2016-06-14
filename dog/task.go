@@ -33,6 +33,12 @@ func writeTempFile(dir, prefix string, data string, perm os.FileMode) (*os.File,
 }
 
 // ToDisk saves the task command to a temp script.
-func (t *Task) ToDisk() error {
-	return writeTempFile("", "dog", t.Run, 0644)
+func (t *Task) ToDisk() (err error) {
+	f, err := writeTempFile("", "dog", t.Run, 0644)
+
+	if err == nil {
+		t.Path = f.Name()
+	}
+
+	return
 }
