@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/xsb/dog/dog"
-	_ "github.com/xsb/dog/executors"
+	"github.com/xsb/dog/dogfile"
 )
 
 func printHelp() {
@@ -25,7 +25,7 @@ func main() {
 
 	// dog
 	case len(os.Args) == 1:
-		tm, err := dog.LoadDogFile()
+		tm, err := dogfile.LoadDogFile()
 		if err != nil {
 			fmt.Println("Error: No valid Dogfile in current directory")
 			fmt.Println("Need help? --> dog help")
@@ -42,17 +42,19 @@ func main() {
 	case len(os.Args) >= 2 && os.Args[1] != "help":
 		taskName := os.Args[1]
 
-		tm, err := dog.LoadDogFile()
+		tm, err := dogfile.LoadDogFile()
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		if _, ok := tm[taskName]; ok {
-			task := tm[taskName]
-			e := dog.GetExecutor(task.Executor)
-			if e == nil {
-				e = dog.GetExecutor("system")
+		if task, ok := tm[taskName]; ok {
+			var e *dog.Executor
+			if task.Executor != "" {
+				e = dog.NewExecutor(task.Executor)
+			} else {
+				e = dog.SystemExecutor
 			}
+
 			if err := e.Exec(&task, os.Stdout); err != nil {
 				fmt.Println(err)
 			}
