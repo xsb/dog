@@ -1,12 +1,15 @@
-package dog
+package executor
 
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"runtime"
 	"syscall"
+
+	"github.com/xsb/dog/types"
 )
 
 var SystemExecutor *Executor
@@ -18,6 +21,20 @@ func init() {
 	default:
 		SystemExecutor = NewExecutor("sh")
 	}
+}
+
+func writeTempFile(dir, prefix string, data string, perm os.FileMode) (*os.File, error) {
+	f, err := ioutil.TempFile(dir, prefix)
+	if err != nil {
+		return f, err
+	}
+
+	if err = f.Chmod(perm); err != nil {
+		return f, err
+	}
+
+	_, err = f.WriteString(data)
+	return f, err
 }
 
 // Executor implements standard shell executor.
@@ -33,9 +50,10 @@ func NewExecutor(cmd string) *Executor {
 }
 
 // Exec executes the created tmp script and writes the output to the writer.
-func (ex *Executor) Exec(t *Task, w io.Writer) error {
+func (ex *Executor) Exec(t *types.Task, w io.Writer) error {
 
-	if err := t.ToDisk(); err != nil {
+	f, err := writeTempFile("", "dog", t.Run, 0644)
+	if err != nil {
 		return err
 	}
 
@@ -44,7 +62,7 @@ func (ex *Executor) Exec(t *Task, w io.Writer) error {
 		return err
 	}
 
-	cmd := exec.Command(binary, t.Path)
+	cmd := exec.Command(binary, f.Name())
 
 	w.Write([]byte(" - " + t.Name + " started\n"))
 
@@ -67,7 +85,7 @@ func (ex *Executor) Exec(t *Task, w io.Writer) error {
 	msg := fmt.Sprintf(" - %s finished with status code %d\n", t.Name, statusCode)
 	w.Write([]byte(msg))
 
-	if err := os.Remove(t.Path); err != nil {
+	if err := os.Remove(f.Name()); err != nil {
 		return err
 	}
 
