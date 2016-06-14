@@ -1,4 +1,4 @@
-package dog
+package dogfile
 
 import (
 	"io/ioutil"
@@ -6,17 +6,18 @@ import (
 	"regexp"
 
 	"github.com/ghodss/yaml"
+	"github.com/xsb/dog/dog"
 )
 
-func ParseDogfile(d []byte) (tm TaskMap, err error) {
-	var tasks []Task
+func ParseDogfile(d []byte) (tm dog.TaskMap, err error) {
+	var tasks []dog.Task
 
 	err = yaml.Unmarshal(d, &tasks)
 	if err != nil {
 		return
 	}
 
-	tm = make(TaskMap)
+	tm = make(dog.TaskMap)
 	for _, t := range tasks {
 		if _, ok := tm[t.Name]; ok {
 			// TODO (duplicated task name) fail and return a non-nil error
@@ -29,7 +30,7 @@ func ParseDogfile(d []byte) (tm TaskMap, err error) {
 }
 
 // LoadDogFile finds a Dogfile in disk, parses YAML and returns a map
-func LoadDogFile() (tm TaskMap, err error) {
+func LoadDogFile() (tm dog.TaskMap, err error) {
 	const validDogfileName = "^(Dogfile|🐕)"
 	var dogfiles []os.FileInfo
 	var d []byte
