@@ -18,18 +18,18 @@ type Task struct {
 // TaskMap is a map in which the key is a task name and the value is a Task object
 type TaskMap map[string]Task
 
-func writeTempFile(dir, prefix string, data string, perm os.FileMode) error {
+func writeTempFile(dir, prefix string, data string, perm os.FileMode) (*os.File, error) {
 	f, err := ioutil.TempFile(dir, prefix)
 	if err != nil {
-		return err
+		return f, err
 	}
 
 	if err = f.Chmod(perm); err != nil {
-		return err
+		return f, err
 	}
 
 	_, err = f.WriteString(data)
-	return err
+	return f, err
 }
 
 // ToDisk saves the task command to a temp script.
