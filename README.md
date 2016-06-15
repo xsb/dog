@@ -42,7 +42,12 @@ At this moment we are focused on implementing the basics that will allow us to p
 
 If you want to help, take a look at:
 
-- Dogfile Spec [discussion](https://github.com/xsb/dog/issues?q=is%3Aissue+is%3Aopen+label%3A%22dogfile+spec%22)
 - Open [bugs](https://github.com/xsb/dog/issues?q=is%3Aissue+is%3Aopen+label%3Abug)
-- Lacking features for [Milestone v0.1](https://github.com/xsb/dog/milestones/v0.1)
-- Lacking features for [Milestone v0.2](https://github.com/xsb/dog/milestones/v0.2)
+- Lacking features for [v0.1](https://github.com/xsb/dog/milestones/v0.1)
+- Lacking features for [v0.2](https://github.com/xsb/dog/milestones/v0.2)
+
+In case you are not interested in improving Dog but on building your own tool on top of the Dogfile Spec, please help us discussing it:
+
+- Dogfile Spec [discussion](https://github.com/xsb/dog/issues?q=is%3Aissue+is%3Aopen+label%3A%22dogfile+spec%22)
+
+Our name for tools that use Dogfiles is *Dogtools*. Dog is the first Dogtool but there is a lot more we want to see implemented in the future: chatbots, UIs, desktop apps, implementations of the cli in other languages, etc. To simplify this process of creating Dogfiles we are trying to implement parts of Dog as go packages you can import in your project (see [parser](https://github.com/xsb/dog/tree/master/parser), [types](https://github.com/xsb/dog/tree/master/types) and [executor](https://github.com/xsb/dog/tree/master/executor)). Let us know if you have any special need on one of these packages.
