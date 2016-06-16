@@ -57,7 +57,7 @@ func (ex *Executor) Exec(t *types.Task, eventsChan chan *types.Event) error {
 
 	defer func() {
 		if err := os.Remove(f.Name()); err != nil {
-			return err
+			eventsChan <- types.NewOutputEvent(t.Name, []byte(err.Error()))
 		}
 	}()
 
