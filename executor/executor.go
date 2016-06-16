@@ -55,6 +55,12 @@ func (ex *Executor) Exec(t *types.Task, eventsChan chan *types.Event) error {
 		return err
 	}
 
+	defer func() {
+		if err := os.Remove(f.Name()); err != nil {
+			return err
+		}
+	}()
+
 	binary, err := exec.LookPath(ex.cmd)
 	if err != nil {
 		return err
@@ -85,10 +91,6 @@ func (ex *Executor) Exec(t *types.Task, eventsChan chan *types.Event) error {
 	}
 
 	eventsChan <- types.NewEndEvent(t.Name, statusCode)
-
-	if err := os.Remove(f.Name()); err != nil {
-		return err
-	}
 
 	return nil
 }
