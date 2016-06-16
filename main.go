@@ -51,7 +51,7 @@ func main() {
 		}
 
 		if task, ok := tm[taskName]; ok {
-			ec := make(chan *types.Event, 32)
+			ec := make(chan *types.Event)
 
 			var e *executor.Executor
 			if task.Executor != "" {
