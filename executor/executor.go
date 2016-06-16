@@ -1,12 +1,12 @@
 package executor
 
 import (
+	"bufio"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"runtime"
 	"syscall"
-	"time"
 
 	"github.com/xsb/dog/types"
 )
@@ -49,7 +49,7 @@ func NewExecutor(cmd string) *Executor {
 }
 
 // Exec executes the created tmp script and writes the output to the writer.
-func (ex *Executor) Exec(t *types.Task, eventsChan chan types.ExecutionEvent) error {
+func (ex *Executor) Exec(t *types.Task, eventsChan chan *types.Event) error {
 	f, err := writeTempFile("", "dog", t.Run, 0644)
 	if err != nil {
 		return err
@@ -62,14 +62,18 @@ func (ex *Executor) Exec(t *types.Task, eventsChan chan types.ExecutionEvent) er
 
 	cmd := exec.Command(binary, f.Name())
 
-	eventsChan <- &types.TaskStartEvent{
-		t.Name,
-		time.Now(),
+	if err := gatherCmdOutput(t.Name, cmd, eventsChan); err != nil {
+		return err
 	}
 
+	if err := cmd.Start(); err != nil {
+		return nil
+	}
+
+	eventsChan <- types.NewStartEvent(t.Name)
+
 	statusCode := 0
-	output, err := cmd.CombinedOutput()
-	if err != nil {
+	if err := cmd.Wait(); err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {
 			if waitStatus, ok := exitError.Sys().(syscall.WaitStatus); !ok {
 				// For unknown error status codes set it to 1
@@ -78,23 +82,41 @@ func (ex *Executor) Exec(t *types.Task, eventsChan chan types.ExecutionEvent) er
 				statusCode = waitStatus.ExitStatus()
 			}
 		}
-		output = append(output, []byte(err.Error())...)
 	}
 
-	eventsChan <- &types.OutputEvent{
-		t.Name,
-		output,
-	}
-
-	eventsChan <- &types.TaskEndEvent{
-		t.Name,
-		time.Now(),
-		statusCode,
-	}
+	eventsChan <- types.NewEndEvent(t.Name, statusCode)
 
 	if err := os.Remove(f.Name()); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func gatherCmdOutput(taskName string, cmd *exec.Cmd, eventsChan chan *types.Event) error {
+	stdoutReader, err := cmd.StdoutPipe()
+	if err != nil {
+		return err
+	}
+
+	stderrReader, err := cmd.StderrPipe()
+	if err != nil {
+		return err
+	}
+
+	stdoutScanner := bufio.NewScanner(stdoutReader)
+	stderrScanner := bufio.NewScanner(stderrReader)
+	go func() {
+		for stdoutScanner.Scan() || stderrScanner.Scan() {
+			if len(stdoutScanner.Bytes()) > 0 {
+				eventsChan <- types.NewOutputEvent(taskName, stdoutScanner.Bytes())
+			}
+
+			if len(stderrScanner.Bytes()) > 0 {
+				eventsChan <- types.NewOutputEvent(taskName, stderrScanner.Bytes())
+			}
+		}
+	}()
 
 	return nil
 }
