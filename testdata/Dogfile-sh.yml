@@ -9,8 +9,8 @@
     reptiles="crocodile lizard snake"
     birds="owl eagle owl"
 
-    echo "$mammals $reptiles $birds" | \
-      sed 's/ /\n/g'| \
-      sort | \
-      uniq -c | \
-      sort -nr
+    echo "$mammals $reptiles $birds" \
+      | tr ' ' '\n' \
+      | sort \
+      | uniq -c \
+      | sort -nr
