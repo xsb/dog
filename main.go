@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/xsb/dog/executor"
@@ -22,7 +21,6 @@ func printTasks(tm types.TaskMap) {
 }
 
 func main() {
-	ec := make(chan types.ExecutionEvent)
 	switch {
 
 	// dog
@@ -35,10 +33,12 @@ func main() {
 		} else {
 			printTasks(tm)
 		}
+		os.Exit(0)
 
 	// dog help
 	case len(os.Args) == 2 && os.Args[1] == "help":
 		printHelp()
+		os.Exit(0)
 
 	// dog <task>
 	case len(os.Args) >= 2 && os.Args[1] != "help":
@@ -46,10 +46,13 @@ func main() {
 
 		tm, err := parser.LoadDogFile()
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
+			os.Exit(1)
 		}
 
 		if task, ok := tm[taskName]; ok {
+			ec := make(chan *types.Event, 32)
+
 			var e *executor.Executor
 			if task.Executor != "" {
 				e = executor.NewExecutor(task.Executor)
@@ -62,25 +65,31 @@ func main() {
 					fmt.Println(err)
 				}
 			}()
+
+			for {
+				select {
+				case event := <-ec:
+					switch event.Name {
+					case "start":
+						fmt.Println(" - " + event.Task + " started")
+					case "output":
+						if body, ok := event.Extras["body"].([]byte); ok {
+							fmt.Println(string(body))
+						}
+					case "end":
+						if statusCode, ok := event.Extras["statusCode"].(int); ok {
+							fmt.Println(
+								fmt.Sprintf(" - %s finished with status code %d", event.Task, statusCode),
+							)
+							os.Exit(statusCode)
+						}
+						os.Exit(1)
+					}
+				}
+			}
 		} else {
 			fmt.Println("No task named " + taskName)
-		}
-	}
-
-	for {
-		select {
-		case event := <-ec:
-			switch e := event.(type) {
-			case *types.TaskStartEvent:
-				fmt.Println(" - " + e.Task + " started")
-			case *types.OutputEvent:
-				fmt.Println(string(e.Body))
-			case *types.TaskEndEvent:
-				fmt.Println(
-					fmt.Sprintf(" - %s finished with status code %d", e.Task, e.StatusCode),
-				)
-				return
-			}
+			os.Exit(1)
 		}
 	}
 }
