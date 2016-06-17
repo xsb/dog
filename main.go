@@ -63,6 +63,7 @@ func main() {
 			go func() {
 				if err := e.Exec(&task, ec); err != nil {
 					fmt.Println(err)
+					os.Exit(1)
 				}
 			}()
 
