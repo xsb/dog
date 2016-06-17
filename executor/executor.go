@@ -109,14 +109,14 @@ func gatherCmdOutput(taskName string, cmd *exec.Cmd, eventsChan chan *types.Even
 	stdoutScanner := bufio.NewScanner(stdoutReader)
 	stderrScanner := bufio.NewScanner(stderrReader)
 	go func() {
-		for stdoutScanner.Scan() || stderrScanner.Scan() {
-			if len(stdoutScanner.Bytes()) > 0 {
-				eventsChan <- types.NewOutputEvent(taskName, stdoutScanner.Bytes())
-			}
+		for stdoutScanner.Scan() {
+			eventsChan <- types.NewOutputEvent(taskName, stdoutScanner.Bytes())
+		}
+	}()
 
-			if len(stderrScanner.Bytes()) > 0 {
-				eventsChan <- types.NewOutputEvent(taskName, stderrScanner.Bytes())
-			}
+	go func() {
+		for stderrScanner.Scan() {
+			eventsChan <- types.NewOutputEvent(taskName, stderrScanner.Bytes())
 		}
 	}()
 
