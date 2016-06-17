@@ -60,10 +60,31 @@ func buildHierarchy(tm types.TaskMap) (map[string][]*types.Task, error) {
 	return th, nil
 }
 
+func findCycles(th map[string][]*types.Task) error {
+	for name, tasks := range th {
+		for _, task := range tasks {
+			if task.Name == name {
+				continue
+			}
+
+			for _, subTask := range th[task.Name] {
+				if subTask.Name == name {
+					return errors.New("Hooks cycle in task " + name)
+				}
+			}
+		}
+	}
+	return nil
+}
+
 // NewRunner creates a new runner that contains a list of all execution paths.
 func NewRunner(tm types.TaskMap) (*runner, error) {
 	th, err := buildHierarchy(tm)
 	if err != nil {
+		return nil, err
+	}
+
+	if err = findCycles(th); err != nil {
 		return nil, err
 	}
 
