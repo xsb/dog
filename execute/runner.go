@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/dogtools/dog/types"
 )
@@ -144,12 +145,14 @@ func (r *runner) waitFor(taskName string) {
 				}
 			case "end":
 				if statusCode, ok := event.Extras["statusCode"].(int); ok {
-					fmt.Println(
-						fmt.Sprintf(" - %s finished with status code %d", event.Task, statusCode),
-					)
-					if statusCode != 0 || event.Task == taskName {
-						os.Exit(statusCode)
+					if elapsed, ok := event.Extras["elapsed"].(time.Duration); ok {
+						fmt.Printf(" - %s took %s and finished with status code %d\n", event.Task, elapsed.String(), statusCode)
+
+						if statusCode != 0 || event.Task == taskName {
+							os.Exit(statusCode)
+						}
 					}
+
 				} else {
 					os.Exit(1)
 				}
