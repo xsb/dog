@@ -159,10 +159,6 @@ func (r *runner) waitFor(taskName string) {
 		select {
 		case event := <-r.eventsChan:
 			switch event.Name {
-			case "start":
-				if r.printInfo {
-					fmt.Println(" - " + event.Task + " started")
-				}
 			case "output":
 				if body, ok := event.Extras["body"].([]byte); ok {
 					fmt.Println(string(body))
@@ -171,7 +167,7 @@ func (r *runner) waitFor(taskName string) {
 				if statusCode, ok := event.Extras["statusCode"].(int); ok {
 					if elapsed, ok := event.Extras["elapsed"].(time.Duration); ok {
 						if r.printInfo {
-							fmt.Printf(" - %s took %s and finished with status code %d\n", event.Task, formatDuration(elapsed), statusCode)
+							fmt.Printf("-- %s took %s and finished with status code %d\n", event.Task, formatDuration(elapsed), statusCode)
 						}
 
 						if statusCode != 0 || event.Task == taskName {
