@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/dogtools/dog/types"
 )
@@ -84,6 +85,26 @@ func findCycles(th map[string][]*types.Task) error {
 	return nil
 }
 
+func formatDuration(d time.Duration) (s string) {
+	timeMsg := ""
+
+	if d.Hours() > 1.0 {
+		timeMsg += fmt.Sprintf("%1.0fh", d.Hours())
+	}
+
+	if d.Minutes() > 1.0 {
+		timeMsg += fmt.Sprintf("%1.0fm", d.Minutes())
+	}
+
+	if d.Seconds() > 1.0 {
+		timeMsg += fmt.Sprintf("%1.0fs", d.Seconds())
+	} else {
+		timeMsg += fmt.Sprintf("%1.3fs", d.Seconds())
+	}
+
+	return timeMsg
+}
+
 // NewRunner creates a new runner that contains a list of all execution paths.
 func NewRunner(tm types.TaskMap, printInfo bool) (*runner, error) {
 	th, err := buildHierarchy(tm)
@@ -148,12 +169,16 @@ func (r *runner) waitFor(taskName string) {
 				}
 			case "end":
 				if statusCode, ok := event.Extras["statusCode"].(int); ok {
-					if r.printInfo {
-						fmt.Printf(" - %s finished with status code %d\n", event.Task, statusCode)
+					if elapsed, ok := event.Extras["elapsed"].(time.Duration); ok {
+						if r.printInfo {
+							fmt.Printf(" - %s took %s and finished with status code %d\n", event.Task, formatDuration(elapsed), statusCode)
+						}
+
+						if statusCode != 0 || event.Task == taskName {
+							os.Exit(statusCode)
+						}
 					}
-					if statusCode != 0 || event.Task == taskName {
-						os.Exit(statusCode)
-					}
+
 				} else {
 					os.Exit(1)
 				}
