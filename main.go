@@ -7,6 +7,8 @@ import (
 
 	"github.com/dogtools/dog/execute"
 	"github.com/dogtools/dog/parser"
+	"github.com/dogtools/dog/serve"
+
 	"github.com/joho/godotenv"
 )
 
@@ -58,6 +60,11 @@ func main() {
 	if err != nil {
 		printNoValidDogfile()
 		os.Exit(1)
+	}
+
+	if a.serve {
+		serve.StartServer(tm)
+		os.Exit(0)
 	}
 
 	if a.taskName != "" {

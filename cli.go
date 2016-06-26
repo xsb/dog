@@ -12,6 +12,7 @@ type userArgs struct {
 	help     bool
 	version  bool
 	info     bool
+	serve    bool
 	taskName string
 	taskArgs map[string][]string
 }
@@ -20,6 +21,7 @@ var knownFlags = [...]string{
 	"-i", "--info",
 	"-h", "--help",
 	"-v", "--version",
+	"--serve",
 }
 
 func printVersion() {
@@ -37,7 +39,8 @@ Options:
 
   -i, --info     Print execution info (duration, statuscode) after task execution
   -h, --help     Print usage information and help
-  -v, --version  Print version information`)
+  -v, --version  Print version information
+  --serve        Serve in an HTTP API mode on port 4000`)
 }
 
 func printNoValidDogfile() {
@@ -74,6 +77,7 @@ func parseArgs(args []string) (a userArgs, err error) {
 		help:     false,
 		version:  false,
 		info:     false,
+		serve:    false,
 		taskName: "",
 		taskArgs: map[string][]string{},
 	}
@@ -93,6 +97,15 @@ func parseArgs(args []string) (a userArgs, err error) {
 		if arg == "--version" || arg == "-v" {
 			if i == 0 && len(args) == 1 && a.taskName == "" {
 				a.version = true
+				return a, nil
+			} else {
+				return a, fmt.Errorf("Error: %s doesn't accept additional parameters", arg)
+			}
+		}
+
+		if arg == "--serve" {
+			if i == 0 && len(args) == 1 && a.taskName == "" {
+				a.serve = true
 				return a, nil
 			} else {
 				return a, fmt.Errorf("Error: %s doesn't accept additional parameters", arg)
