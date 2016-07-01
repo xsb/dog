@@ -17,38 +17,34 @@ type runner struct {
 
 func generateChainFor(t *types.Task, tm types.TaskMap) ([]*types.Task, error) {
 	chain := []*types.Task{}
-	if pres, ok := t.Pre.([]string); ok {
-		for _, preName := range pres {
-			pre, found := tm[preName]
-			if !found {
-				return nil, errors.New(
-					"Task " + preName + " does not exist",
-				)
-			}
-			preChain, err := generateChainFor(pre, tm)
-			if err != nil {
-				return nil, err
-			}
-			chain = append(chain, preChain...)
+	for _, preName := range t.Pre {
+		pre, found := tm[preName]
+		if !found {
+			return nil, errors.New(
+				"Task " + preName + " does not exist",
+			)
 		}
+		preChain, err := generateChainFor(pre, tm)
+		if err != nil {
+			return nil, err
+		}
+		chain = append(chain, preChain...)
 	}
 
 	chain = append(chain, t)
 
-	if posts, ok := t.Post.([]string); ok {
-		for _, postName := range posts {
-			post, found := tm[postName]
-			if !found {
-				return []*types.Task{}, errors.New(
-					"Task " + postName + " does not exist",
-				)
-			}
-			postChain, err := generateChainFor(post, tm)
-			if err != nil {
-				return nil, err
-			}
-			chain = append(chain, postChain...)
+	for _, postName := range t.Post {
+		post, found := tm[postName]
+		if !found {
+			return []*types.Task{}, errors.New(
+				"Task " + postName + " does not exist",
+			)
 		}
+		postChain, err := generateChainFor(post, tm)
+		if err != nil {
+			return nil, err
+		}
+		chain = append(chain, postChain...)
 	}
 
 	return chain, nil
