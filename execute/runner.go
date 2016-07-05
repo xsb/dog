@@ -42,7 +42,7 @@ func generateChainFor(t *types.Task, tm types.TaskMap, chain []*types.Task) ([]*
 				"Task " + preName + " does not exist",
 			)
 		}
-		prec, err := generateChainFor(pre, tm, chain)
+		prec, err := generateChainFor(pre, tm, append(chain, pre))
 		if err != nil {
 			return nil, err
 		}
