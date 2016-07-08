@@ -43,6 +43,13 @@ func generateChainFor(t *types.Task, tm types.TaskMap, chain []*types.Task) ([]*
 				"Task " + preName + " does not exist",
 			)
 		}
+
+		for _, prePre := range pre.Pre {
+			if prePre == t.Name {
+				return nil, errors.New("Task " + preName + " has a hook cycle")
+			}
+		}
+
 		chain, err = generateChainFor(pre, tm, chain)
 		if err != nil {
 			return nil, err
