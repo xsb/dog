@@ -138,7 +138,7 @@ We can also tag our most important tasks to be highlighted at the top of the lis
   tags: top # Show this task at the top of the list
 ```
 
-### env*
+### env
 
 Default values for environment variables can be provided in the Dogfile. They can be modified at execution time.
 
