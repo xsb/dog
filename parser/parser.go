@@ -11,7 +11,7 @@ import (
 	"github.com/ghodss/yaml"
 )
 
-var ErrMalformedHook = errors.New("Malformed hook")
+var ErrMalformedStringArray = errors.New("Malformed strings array")
 
 type task struct {
 	Name        string      `json:"task"`
@@ -23,8 +23,8 @@ type task struct {
 	Post        interface{} `json:"post,omitempty"`
 }
 
-func parseHooks(hooks interface{}) ([]string, error) {
-	switch h := hooks.(type) {
+func parseStringSlice(str interface{}) ([]string, error) {
+	switch h := str.(type) {
 	case string:
 		return []string{h}, nil
 	case []interface{}:
@@ -32,7 +32,7 @@ func parseHooks(hooks interface{}) ([]string, error) {
 		for i, hook := range h {
 			sHook, ok := hook.(string)
 			if !ok {
-				return nil, ErrMalformedHook
+				return nil, ErrMalformedStringArray
 			}
 			s[i] = sHook
 		}
@@ -40,7 +40,7 @@ func parseHooks(hooks interface{}) ([]string, error) {
 	case nil:
 		return []string{}, nil
 	default:
-		return nil, ErrMalformedHook
+		return nil, ErrMalformedStringArray
 	}
 }
 
@@ -65,10 +65,10 @@ func ParseDogfile(d []byte) (tm types.TaskMap, err error) {
 				Run:         t.Run,
 				Executor:    t.Executor,
 			}
-			if task.Pre, err = parseHooks(t.Pre); err != nil {
+			if task.Pre, err = parseStringSlice(t.Pre); err != nil {
 				return
 			}
-			if task.Post, err = parseHooks(t.Post); err != nil {
+			if task.Post, err = parseStringSlice(t.Post); err != nil {
 				return
 			}
 			tm[t.Name] = task

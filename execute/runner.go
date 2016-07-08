@@ -31,6 +31,7 @@ func isCyclic(chain []*types.Task) bool {
 }
 
 func generateChainFor(t *types.Task, tm types.TaskMap, chain []*types.Task) ([]*types.Task, error) {
+	var err error
 	if isCyclic(chain) {
 		return nil, errors.New("Task " + t.Name + " has a hook cycle")
 	}
@@ -42,11 +43,10 @@ func generateChainFor(t *types.Task, tm types.TaskMap, chain []*types.Task) ([]*
 				"Task " + preName + " does not exist",
 			)
 		}
-		prec, err := generateChainFor(pre, tm, append(chain, pre))
+		chain, err = generateChainFor(pre, tm, chain)
 		if err != nil {
 			return nil, err
 		}
-		chain = append(chain, prec...)
 	}
 
 	chain = append(chain, t)
@@ -58,11 +58,10 @@ func generateChainFor(t *types.Task, tm types.TaskMap, chain []*types.Task) ([]*
 				"Task " + postName + " does not exist",
 			)
 		}
-		postc, err := generateChainFor(post, tm, chain)
+		chain, err = generateChainFor(post, tm, chain)
 		if err != nil {
 			return nil, err
 		}
-		chain = append(chain, postc...)
 	}
 
 	return chain, nil
