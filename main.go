@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/dogtools/dog/execute"
@@ -17,7 +16,8 @@ func main() {
 	if _, err := os.Stat(`./.env`); !os.IsNotExist(err) {
 		err = godotenv.Load()
 		if err != nil {
-			log.Fatal("Error loading .env file")
+			fmt.Println("Error loading .env file")
+			os.Exit(1)
 		}
 	}
 
