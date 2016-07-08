@@ -2,15 +2,24 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/dogtools/dog/execute"
 	"github.com/dogtools/dog/parser"
+	"github.com/joho/godotenv"
 )
 
 const version = "0.0"
 
 func main() {
+	// if .env file exists (in same dir as Dogfile), load values into env
+	if _, err := os.Stat(`./.env`); !os.IsNotExist(err) {
+		err = godotenv.Load()
+		if err != nil {
+			log.Fatal("Error loading .env file")
+		}
+	}
 
 	a, err := parseArgs(os.Args[1:])
 	if err != nil {
