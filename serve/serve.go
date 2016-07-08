@@ -8,23 +8,19 @@ import (
 
 	"github.com/dogtools/dog/execute"
 	"github.com/dogtools/dog/types"
-
-	"github.com/husobee/vestigo"
+	"github.com/gorilla/pat"
 )
 
 var tm types.TaskMap
 
 func StartServer(taskMap types.TaskMap) {
-	tm = taskMap
-
-	router := vestigo.NewRouter()
-	router.Post("/run/:taskName", runTask)
-
+	router := pat.New()
+	router.Post("/run/{taskName}", runTaskHandler)
 	log.Fatal(http.ListenAndServe(":4000", router))
 }
 
-func runTask(w http.ResponseWriter, r *http.Request) {
-	taskName := vestigo.Param(r, "taskName")
+func runTaskHandler(w http.ResponseWriter, req *http.Request) {
+	taskName := req.URL.Query().Get(":taskName")
 
 	runner, err := execute.NewRunner(tm, false)
 	if err != nil {
