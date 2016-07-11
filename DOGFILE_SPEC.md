@@ -177,7 +177,7 @@ Additional parameters can be provided to the task that will be executed. This is
 
 ### register*
 
-Registers store the STDOUT of executed tasks as text strings in environment variables. Other tasks (using pre or post hooks) can get their value later if their ar part of the same task-chain execution.
+Registers store the STDOUT of executed tasks as text strings in environment variables. Other tasks (using pre or post hooks) can get their value later if their are part of the same task-chain execution.
 
 
 ```yml
