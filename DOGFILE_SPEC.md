@@ -178,7 +178,7 @@ Additional parameters can be provided to the task that will be executed. This is
 
 ### register*
 
-Registers store the STDOUT of executed tasks as environment variables so other tasks can get their value later if their are part of the same task-chain execution.
+Registers store the STDOUT of executed tasks as environment variables so other tasks can get their value later if they are part of the same task-chain execution.
 
 ```yml
   task: get-dog-version
@@ -195,9 +195,7 @@ Dogfiles don't have global variables, use registers instead.
 
 ### Non standard directives*
 
-Tools using Dogfiles and having special requirements can define their directives. The only requirement for a non standard directive is that its name starts with `x_`.
-
-These directives are optional and can be safely ignored by other tools.
+Tools using Dogfiles and having special requirements can define their own directives. The only requirement for a non standard directive is that its name starts with `x_`. These directives are optional and can be safely ignored by other tools.
 
 ```yml
 - task: clear-cache
