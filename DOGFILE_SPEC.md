@@ -18,11 +18,11 @@ Dogfiles are [YAML](http://yaml.org/) files that describe the execution of autom
   run: echo bye
 ```
 
-Multiple Dogfiles in the same directory are processed together as a single entity. Although the name `Dogfile.yml` is recommended, any file with a name that starts with `Dogfile` and includes valid (following this standard) YAML syntax is a Dogfile.
+Multiple Dogfiles in the same directory are processed together as a single entity. Although the name `Dogfile.yml` is recommended, any file with a name that starts with `Dogfile` and follows this specification is a valid Dogfile.
 
 ## Task definition
 
-The task map accepts the following directives. Please note that directives marked with an asterisk are not implemented in Dog yet and their usage and behaviour will possibly change.
+The task map accepts the following directives. Please note that directives marked with an asterisk are not implemented in Dog yet and their definition and behaviour will possibly change in the future.
 
 ### task
 
@@ -34,13 +34,11 @@ Name of the task. A string that may include lowercase characters (a-z), integers
 
 ### description
 
-Description of the task.
+Description of the task. Tasks that avoid this directive are not shown in the task list.
 
 ```yml
-  description: This task does some scull stuff
+  description: This task does some cool stuff
 ```
-
-Tasks that avoid this directive are not shown in the task list.
 
 ### run
 
@@ -63,7 +61,7 @@ Multiline scripts are supported.
 
 ### exec
 
-The default executor is `sh` on UNIX-like operating systems and `cmd` on Windows (not tested yet). There is no need to use the *exec* directive when using them.
+When this directive is not defined, the default executor is `sh` on UNIX-like operating systems and `cmd` on Windows (not tested yet).
 
 Additional executors are supported if they are present in the system. The following example uses the Ruby executor to print 'Hello World'.
 
@@ -109,7 +107,7 @@ Post-hooks are analog to pre-hooks but they are executed after current task fini
   post: clean
 ```
 
-They also accept arrays.
+Arrays are also accepted for multi task post-hooks.
 
 ```yml
   post:
@@ -180,12 +178,10 @@ Additional parameters can be provided to the task that will be executed. This is
 
 ### register*
 
-Registers store the STDOUT of executed tasks as environment variables. Other tasks (using pre or post hooks) can get their value later if their are part of the same task-chain execution.
-
+Registers store the STDOUT of executed tasks as environment variables so other tasks can get their value later if their are part of the same task-chain execution.
 
 ```yml
   task: get-dog-version
-  description: Get Dog version
   run: dog --version | awk '{print $3}'
   register: DOG_VERSION
 
@@ -195,9 +191,11 @@ Registers store the STDOUT of executed tasks as environment variables. Other tas
   run: echo "I am running Dog $DOG_VERSION"
 ```
 
+Dogfiles don't have global variables, use registers instead.
+
 ### Non standard directives*
 
-Tools using Dogfiles and having special requirements can define their own non stantard directives. The only requirement is that the directive's name starts with `x_`.
+Tools using Dogfiles and having special requirements can define their directives. The only requirement for a non standard directive is that its name starts with `x_`.
 
 These directives are optional and can be safely ignored by other tools.
 
