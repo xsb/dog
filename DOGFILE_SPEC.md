@@ -1,12 +1,12 @@
 # Dogfile Spec
 
-This is a work in progress, almost none of this is implemented in Dog yet. This document is a draft of the Dogfile Spec.
+*NOTE: This document is a draft and will probably change in the future. Most of its content is still open to discussion.*
 
-[Dog](https://github.com/dogtools/dog) is a command line application that executes tasks. It's the first tool that uses Dogfiles and is developed at the same time as the Dogfile Spec itself.
+[Dog](https://github.com/dogtools/dog) is the first tool that uses Dogfiles and is developed at the same time as the Dogfile Spec itself.
 
 ## File Format
 
-Dogfiles are [YAML](http://yaml.org/) files that describe the execution of automated tasks. The root object of a Dogfile is an array of map objects. These maps are called Tasks, here you can see an example of a Dogfile with two simple Tasks:
+Dogfiles are [YAML](http://yaml.org/) files that describe the execution of automated tasks. The root object of a Dogfile is an array of map objects (we call them Tasks). This is an example of a Dogfile with two simple Tasks:
 
 ```yml
 - task: hello
@@ -22,11 +22,11 @@ Multiple Dogfiles in the same directory are processed together as a single entit
 
 ## Task definition
 
-The task map accepts the following directives. Please note that directives marked with an asterisk are not implemented yet and will possibly change.
+The task map accepts the following directives. Please note that directives marked with an asterisk are not implemented in Dog yet and their usage and behaviour will possibly change.
 
 ### task
 
-Name of the task. A string made of lowercase characters (a-z), integers (0-9) and hyphens (-).
+Name of the task. A string that may include lowercase characters (a-z), integers (0-9) and hyphens (-).
 
 ```yml
 - task: mytask
@@ -39,6 +39,9 @@ Description of the task.
 ```yml
   description: This task does some scull stuff
 ```
+
+Tasks that avoid this directive are not shown in the task list.
+
 ### run
 
 The code that will be executed.
@@ -60,14 +63,26 @@ Multiline scripts are supported.
 
 ### exec
 
-The default executor is `sh` on UNIX-like operating systems and `cmd` on Windows, but other executors will be supported.
+The default executor is `sh` on UNIX-like operating systems and `cmd` on Windows (not tested yet). There is no need to use the *exec* directive when using them.
+
+Additional executors are supported if they are present in the system. The following example uses the Ruby executor to print 'Hello World'.
 
 ```yml
+  task: hello-ruby
+  description: Hello World from Ruby
   exec: ruby
   run: |
-    hello = "Hello Dog!"
+    hello = "Hello World"
     puts hello
 ```
+
+The following list of executors are known to work:
+
+- sh
+- bash
+- python
+- ruby
+- perl
 
 ### pre
 
@@ -104,15 +119,15 @@ They also accept arrays.
 
 ### workdir
 
-Sets the working directory for the task. If a relative path is provided, it's considered relative to the ubication of the Dogfile.
+Sets the working directory for the task. Relative paths are considered relative to the location of the Dogfile.
 
 ```yml
   workdir: ./app/
 ```
 
-### tag*
+### tags*
 
-Tags are used to group similar tasks.
+When listing tasks, the ones with the same tag will be shown together. This directive is optional but useful on projects including lots of tasks.
 
 ```yml
   tags: dev
@@ -165,7 +180,7 @@ Additional parameters can be provided to the task that will be executed. This is
 
 ### register*
 
-Registers store the STDOUT of executed tasks as text strings in environment variables. Other tasks (using pre or post hooks) can get their value later if their are part of the same task-chain execution.
+Registers store the STDOUT of executed tasks as environment variables. Other tasks (using pre or post hooks) can get their value later if their are part of the same task-chain execution.
 
 
 ```yml
@@ -182,9 +197,9 @@ Registers store the STDOUT of executed tasks as text strings in environment vari
 
 ### Non standard directives*
 
-Optional directives that are not part of the Dogfile Format. Tools using Dogfiles and having special requirements can use their own directives that will be ignored by the tools that only follow the standard.
+Tools using Dogfiles and having special requirements can define their own non stantard directives. The only requirement is that the directive's name starts with `x_`.
 
-Any parameter starting by `x_` will simply be ignored.
+These directives are optional and can be safely ignored by other tools.
 
 ```yml
 - task: clear-cache
