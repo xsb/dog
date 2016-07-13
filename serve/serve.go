@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/dogtools/dog/execute"
+	"github.com/dogtools/dog/parser"
 	"github.com/dogtools/dog/types"
 	"github.com/gorilla/pat"
 )
@@ -21,6 +22,12 @@ func StartServer(taskMap types.TaskMap) {
 
 func runTaskHandler(w http.ResponseWriter, req *http.Request) {
 	taskName := req.URL.Query().Get(":taskName")
+
+	tm, err := parser.LoadDogFile()
+	if err != nil {
+		fmt.Println("No Valid Dogfile")
+		os.Exit(1)
+	}
 
 	runner, err := execute.NewRunner(tm, false)
 	if err != nil {
