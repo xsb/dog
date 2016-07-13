@@ -109,7 +109,9 @@ func LoadDogFile() (tm types.TaskMap, err error) {
 				return
 			}
 
-			ParseDogfile(fileData, tm)
+			if err = ParseDogfile(fileData, tm); err != nil {
+				return
+			}
 		}
 	}
 	return
