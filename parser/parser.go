@@ -111,20 +111,6 @@ func LoadDogFile() (tm types.TaskMap, err error) {
 
 			ParseDogfile(fileData, tm)
 		}
-
-		// if match {
-		// 	dogfiles = append(dogfiles, file)
-		// }
 	}
-
-	// for _, dogfile := range dogfiles {
-	// 	var fileData []byte
-	// 	fileData, err = ioutil.ReadFile(dogfile.Name())
-	// 	if err != nil {
-	// 		return
-	// 	}
-	// 	d = append(d, fileData...)
-	// }
-
 	return
 }
