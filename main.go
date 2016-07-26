@@ -60,6 +60,10 @@ func main() {
 		os.Exit(1)
 	}
 
+	if a.workdir != "" {
+		fmt.Printf("%#v\n", tm)
+		tm[a.taskName].Workdir = a.workdir
+	}
 	if a.taskName != "" {
 		runner, err := execute.NewRunner(tm, a.info)
 		if err != nil {
