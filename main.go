@@ -61,7 +61,6 @@ func main() {
 	}
 
 	if a.workdir != "" {
-		fmt.Printf("%#v\n", tm)
 		tm[a.taskName].Workdir = a.workdir
 	}
 	if a.taskName != "" {
