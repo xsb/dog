@@ -7,14 +7,14 @@ Dog is a command line application that executes automated tasks. It works in a s
 
 ## Installing Dog
 
-If you are on OSX you can simply install it using brew:
+If you are on macOS you can install Dog using brew:
 
 ```
 brew tap dogtools/dog
 brew install dog
 ```
 
-If you have your golang environment set up, a simple:
+If you have your golang environment set up, you can use:
 
 ```
 go get github.com/dogtools/dog
