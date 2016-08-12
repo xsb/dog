@@ -20,7 +20,7 @@ Or in a one liner:
 brew install dogtools/dog/dog
 ```
 
-If you have your golang environment set up, a simple 
+If you have your golang environment set up, a simple:
 
 ```
 go get github.com/dogtools/dog
