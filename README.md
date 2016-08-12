@@ -14,28 +14,10 @@ brew tap dogtools/dog
 brew install dog
 ```
 
-Or in a one liner:
-
-```
-brew install dogtools/dog/dog
-```
-
 If you have your golang environment set up, a simple:
 
 ```
 go get github.com/dogtools/dog
-```
-
-Or you can just download the latest release, and put the binary for your architecture in your path:
-
-```
-wget https://github.com/dogtools/dog/releases/download/v0.1.0/dog-v0.1.0.tar.gz
-
-tar -zxvf dog-v0.1.0.tar.gz
-
-cp dist/darwin_amd64/dog some/other/path
-
-export $PATH=$PATH:some/other/path
 ```
 
 ## Using Dog
