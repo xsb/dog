@@ -5,6 +5,39 @@
 
 Dog is a command line application that executes automated tasks. It works in a similar way as GNU Make but it is a more generic task runner, not a build tool. Dog's default script syntax is `sh` but most interpreted languages like BASH, Python, Ruby or Perl can also be used.
 
+## Installing dog
+
+If you are on OSX you can simply install it using brew:
+
+```
+brew tap dogtools/dog
+brew install dog
+```
+
+Or in a one liner:
+
+```
+brew install dogtools/dog/dog
+```
+
+If you have your golang environment set up, a simple 
+
+```
+go get github.com/dogtools/dog
+```
+
+Or you can just download the last release, and put the binary for your architecture in your path:
+
+```
+wget https://github.com/dogtools/dog/releases/download/v0.1.0/dog-v0.1.0.tar.gz
+
+tar -zxvf dog-v0.1.0.tar.gz
+
+cp dist/darwin_amd64/dog some/other/path
+
+export $PATH=$PATH:some/other/path
+```
+
 ## Using Dog
 
 List all tasks in current project
