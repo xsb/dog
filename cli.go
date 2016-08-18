@@ -40,8 +40,8 @@ Dog is a command line application that executes tasks.
 Options:
 
   -i, --info       Print execution info (duration, statuscode) after task execution
-	-w, --workdir    Specify the working directory
-	-d, --directory  Specify the dogfiles' directory
+  -w, --workdir    Specify the working directory
+  -d, --directory  Specify the dogfiles' directory
   -h, --help       Print usage information and help
   -v, --version    Print version information`)
 }
