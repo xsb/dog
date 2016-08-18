@@ -14,7 +14,7 @@ import (
 )
 
 var ErrMalformedStringArray = errors.New("Malformed strings array")
-var ErrNoDogfiles = errors.New("No dogfiles found")
+var ErrNoDogfile = errors.New("No dogfile found")
 
 type task struct {
 	Name        string      `json:"task"`
@@ -143,7 +143,7 @@ func LoadDogFile(directory string) (tm types.TaskMap, err error) {
 		return
 	}
 	if len(files) == 0 {
-		err = ErrNoDogfiles
+		err = ErrNoDogfile
 		return
 	}
 
