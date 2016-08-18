@@ -37,7 +37,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	tm, err := parser.LoadDogFile()
+	tm, err := parser.LoadDogFile(a.directory)
 	if err != nil {
 		printNoValidDogfile()
 		os.Exit(1)

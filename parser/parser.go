@@ -132,9 +132,13 @@ func FindDogFiles(startPath string) (dogfilePaths []string, err error) {
 }
 
 // LoadDogFile finds a Dogfile in disk, parses YAML and returns a map.
-func LoadDogFile() (tm types.TaskMap, err error) {
+func LoadDogFile(directory string) (tm types.TaskMap, err error) {
+	if directory == "" {
+		directory = "."
+	}
+
 	tm = make(types.TaskMap)
-	files, err := FindDogFiles(".")
+	files, err := FindDogFiles(directory)
 	if err != nil {
 		return
 	}

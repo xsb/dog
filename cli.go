@@ -9,12 +9,13 @@ import (
 )
 
 type userArgs struct {
-	help     bool
-	workdir  string
-	version  bool
-	info     bool
-	taskName string
-	taskArgs map[string][]string
+	help      bool
+	workdir   string
+	directory string
+	version   bool
+	info      bool
+	taskName  string
+	taskArgs  map[string][]string
 }
 
 var knownFlags = [...]string{
@@ -22,6 +23,7 @@ var knownFlags = [...]string{
 	"-w", "--workdir",
 	"-h", "--help",
 	"-v", "--version",
+	"-d", "--directory",
 }
 
 func printVersion() {
@@ -37,10 +39,11 @@ Dog is a command line application that executes tasks.
 
 Options:
 
-  -i, --info     Print execution info (duration, statuscode) after task execution
-  -w, --workdir  Specify the working directory
-  -h, --help     Print usage information and help
-  -v, --version  Print version information`)
+  -i, --info       Print execution info (duration, statuscode) after task execution
+	-w, --workdir    Specify the working directory
+	-d, --directory  Specify the dogfiles' directory
+  -h, --help       Print usage information and help
+  -v, --version    Print version information`)
 }
 
 func printNoValidDogfile() {
@@ -123,6 +126,12 @@ func parseArgs(args []string) (a userArgs, err error) {
 		if arg == "--workdir" || arg == "-w" {
 			next := i + 1
 			a.workdir = args[next]
+			skipArgument = true
+		}
+
+		if arg == "--directory" || arg == "-d" {
+			next := i + 1
+			a.directory = args[next]
 			skipArgument = true
 		}
 
