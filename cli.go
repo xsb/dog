@@ -79,12 +79,13 @@ func parseArgs(args []string) (a userArgs, err error) {
 
 	// default values
 	a = userArgs{
-		help:     false,
-		workdir:  "",
-		version:  false,
-		info:     false,
-		taskName: "",
-		taskArgs: map[string][]string{},
+		help:      false,
+		workdir:   "",
+		directory: "",
+		version:   false,
+		info:      false,
+		taskName:  "",
+		taskArgs:  map[string][]string{},
 	}
 
 	skipArgument := false
