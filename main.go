@@ -43,13 +43,16 @@ func main() {
 		os.Exit(1)
 	}
 
-	if a.workdir != "" {
-		tm[a.taskName].Workdir = a.workdir
-	}
-	if tm[a.taskName].Workdir == "" {
-		tm[a.taskName].Workdir = a.directory
-	}
 	if a.taskName != "" {
+		if tm[a.taskName] != nil {
+			if a.workdir != "" {
+				tm[a.taskName].Workdir = a.workdir
+			}
+			if tm[a.taskName].Workdir == "" {
+				tm[a.taskName].Workdir = a.directory
+			}
+		}
+
 		runner, err := execute.NewRunner(tm, a.info)
 		if err != nil {
 			fmt.Println(err)
