@@ -46,6 +46,9 @@ func main() {
 	if a.workdir != "" {
 		tm[a.taskName].Workdir = a.workdir
 	}
+	if tm[a.taskName].Workdir == "" {
+		tm[a.taskName].Workdir = a.directory
+	}
 	if a.taskName != "" {
 		runner, err := execute.NewRunner(tm, a.info)
 		if err != nil {
