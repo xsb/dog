@@ -1,0 +1,163 @@
+package dog
+
+import (
+	"errors"
+	"fmt"
+	"os/exec"
+	"syscall"
+	"time"
+
+	"github.com/dogtools/dog/run"
+)
+
+// ErrCycleInTaskChain means that there is a loop in the path of tasks execution.
+var ErrCycleInTaskChain = errors.New("TaskChain includes a cycle of tasks")
+
+// TaskChain contains one or more tasks to be executed in order.
+type TaskChain struct {
+	Tasks []*Task
+}
+
+// Generate creates the TaskChain for a specific task.
+func (taskChain *TaskChain) Generate(d Dogfile, task string) error {
+
+	// Cycle detection
+	for i := 0; i < len(taskChain.Tasks); i++ {
+		if taskChain.Tasks[i].Name == task {
+			if len(taskChain.Tasks[i].Pre) > 0 || len(taskChain.Tasks[i].Post) > 0 {
+				return ErrCycleInTaskChain
+			}
+		}
+	}
+
+	t := d.Tasks[task]
+
+	// Iterate over pre-tasks
+	if err := addToChain(taskChain, d, t.Pre); err != nil {
+		return err
+	}
+
+	// Add current task to chain
+	taskChain.Tasks = append(taskChain.Tasks, t)
+
+	// Iterate over post-tasks
+	if err := addToChain(taskChain, d, t.Post); err != nil {
+		return err
+	}
+	return nil
+}
+
+// addToChain iterates over a list of pre or post tasks and adds them to the task chain.
+func addToChain(taskChain *TaskChain, d Dogfile, tasks []string) error {
+	for _, name := range tasks {
+
+		t, found := d.Tasks[name]
+		if !found {
+			return errors.New("Task " + name + " does not exist")
+		}
+
+		if err := taskChain.Generate(d, t.Name); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// Run handles the execution of all tasks in the TaskChain.
+func (taskChain *TaskChain) Run() error {
+	var startTime time.Time
+
+	for _, t := range taskChain.Tasks {
+		var err error
+		var runner run.Runner
+		exitStatus := 0
+
+		switch t.Runner {
+		case "sh":
+			runner, err = run.NewShRunner(t.Code, t.Workdir, t.Env)
+		case "bash":
+			runner, err = run.NewBashRunner(t.Code, t.Workdir, t.Env)
+		case "python":
+			runner, err = run.NewPythonRunner(t.Code, t.Workdir, t.Env)
+		case "ruby":
+			runner, err = run.NewRubyRunner(t.Code, t.Workdir, t.Env)
+		case "perl":
+			runner, err = run.NewPerlRunner(t.Code, t.Workdir, t.Env)
+		default:
+			if t.Runner == "" {
+				return fmt.Errorf("Runner not specified")
+			}
+			return fmt.Errorf("%s is not a supported runner", t.Runner)
+		}
+		if err != nil {
+			return err
+		}
+
+		stdoutScanner, stderrScanner, err := run.GetOutputScanners(runner)
+		if err != nil {
+			return err
+		}
+
+		go func() {
+			for stdoutScanner.Scan() {
+				fmt.Println(stdoutScanner.Text())
+			}
+		}()
+
+		go func() {
+			for stderrScanner.Scan() {
+				fmt.Println(stderrScanner.Text())
+			}
+		}()
+
+		startTime = time.Now()
+		err = runner.Start()
+		if err != nil {
+			return err
+		}
+
+		err = runner.Wait()
+		if err != nil {
+			if exitError, ok := err.(*exec.ExitError); ok {
+				if waitStatus, ok := exitError.Sys().(syscall.WaitStatus); !ok {
+					exitStatus = 1 // For unknown error exit codes set it to 1
+				} else {
+					exitStatus = waitStatus.ExitStatus()
+				}
+			}
+			if ProvideExtraInfo {
+				fmt.Printf("-- %s (%s) failed with exit status %d\n",
+					t.Name, formatDuration(time.Since(startTime)), exitStatus)
+			}
+			return err
+		}
+
+		if ProvideExtraInfo {
+			fmt.Printf("-- %s (%s) finished with exit status %d\n",
+				t.Name, formatDuration(time.Since(startTime)), exitStatus)
+		}
+
+	}
+	return nil
+}
+
+// formatDuration is a time formatter.
+func formatDuration(d time.Duration) (s string) {
+	timeMsg := ""
+
+	if d.Hours() > 1.0 {
+		timeMsg += fmt.Sprintf("%1.0fh", d.Hours())
+	}
+
+	if d.Minutes() > 1.0 {
+		timeMsg += fmt.Sprintf("%1.0fm", d.Minutes())
+	}
+
+	if d.Seconds() > 1.0 {
+		timeMsg += fmt.Sprintf("%1.0fs", d.Seconds())
+	} else {
+		timeMsg += fmt.Sprintf("%1.3fs", d.Seconds())
+	}
+
+	return timeMsg
+}
