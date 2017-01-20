@@ -50,21 +50,21 @@ func NewPerlRunner(code string, workdir string, env []string) (Runner, error) {
 	return newCmdRunner("perl", code, workdir, env)
 }
 
-// GetOutputScanners is a helper method that returns two bufio.Scanner objects,
-// one for stdout and one for stderr.
-func GetOutputScanners(r Runner) (stdoutScanner bufio.Scanner, stderrScanner bufio.Scanner, err error) {
-	stdoutReader, err := r.StdoutPipe()
+// CombinedOutput is a helper method that returns combined (stdout and stderr)
+// output from the runner.
+func CombinedOutput(r Runner) (io.Reader, error) {
+	stdout, err := r.StdoutPipe()
 	if err != nil {
-		return bufio.Scanner{}, bufio.Scanner{}, err
+		return nil, err
 	}
 
-	stderrReader, err := r.StderrPipe()
+	stderr, err := r.StderrPipe()
 	if err != nil {
-		return bufio.Scanner{}, bufio.Scanner{}, err
+		return nil, err
 	}
 
-	stdoutScanner = *bufio.NewScanner(stdoutReader)
-	stderrScanner = *bufio.NewScanner(stderrReader)
+	r1 := bufio.NewReader(stdout)
+	r2 := bufio.NewReader(stderr)
 
-	return stdoutScanner, stderrScanner, nil
+	return io.MultiReader(r1, r2), nil
 }

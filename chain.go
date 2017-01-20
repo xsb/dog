@@ -3,6 +3,8 @@ package dog
 import (
 	"errors"
 	"fmt"
+	"io"
+	"os"
 	"os/exec"
 	"syscall"
 	"time"
@@ -93,22 +95,12 @@ func (taskChain *TaskChain) Run() error {
 			return err
 		}
 
-		stdoutScanner, stderrScanner, err := run.GetOutputScanners(runner)
+		runOutput, err := run.CombinedOutput(runner)
 		if err != nil {
 			return err
 		}
 
-		go func() {
-			for stdoutScanner.Scan() {
-				fmt.Println(stdoutScanner.Text())
-			}
-		}()
-
-		go func() {
-			for stderrScanner.Scan() {
-				fmt.Println(stderrScanner.Text())
-			}
-		}()
+		go io.Copy(os.Stdout, runOutput)
 
 		startTime = time.Now()
 		err = runner.Start()
