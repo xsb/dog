@@ -134,20 +134,21 @@ func (taskChain *TaskChain) Run() error {
 }
 
 // formatDuration is a time formatter.
-func formatDuration(d time.Duration) (timeMsg string) {
+func formatDuration(d time.Duration) (s string) {
+	timeMsg := ""
 
 	if d.Hours() > 1.0 {
-		timeMsg = fmt.Sprintf("%1.0fh", d.Hours())
+		timeMsg += fmt.Sprintf("%1.0fh", d.Hours())
 	}
 
 	if d.Minutes() > 1.0 {
-		timeMsg = fmt.Sprintf("%1.0fm", d.Minutes())
+		timeMsg += fmt.Sprintf("%1.0fm", d.Minutes())
 	}
 
 	if d.Seconds() > 1.0 {
-		timeMsg = fmt.Sprintf("%1.0fs", d.Seconds())
+		timeMsg += fmt.Sprintf("%1.0fs", d.Seconds())
 	} else {
-		timeMsg = fmt.Sprintf("%1.3fs", d.Seconds())
+		timeMsg += fmt.Sprintf("%1.3fs", d.Seconds())
 	}
 
 	return timeMsg
