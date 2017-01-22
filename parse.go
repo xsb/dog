@@ -53,7 +53,7 @@ type taskYAML struct {
 	Workdir string      `json:"workdir,omitempty"`
 }
 
-// Parse accepts a slice of bytes and parses it folloing the Dogfile Spec.
+// Parse accepts a slice of bytes and parses it following the Dogfile Spec.
 func (d *Dogfile) Parse(p []byte) error {
 	var tasks []*taskYAML
 
