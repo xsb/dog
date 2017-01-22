@@ -55,7 +55,7 @@ func addToChain(taskChain *TaskChain, d Dogfile, tasks []string) error {
 
 		t, found := d.Tasks[name]
 		if !found {
-			return errors.New("Task " + name + " does not exist")
+			return fmt.Errorf("Task %q does not exist", name)
 		}
 
 		if err := taskChain.Generate(d, t.Name); err != nil {
@@ -87,7 +87,7 @@ func (taskChain *TaskChain) Run() error {
 			runner, err = run.NewPerlRunner(t.Code, t.Workdir, t.Env)
 		default:
 			if t.Runner == "" {
-				return fmt.Errorf("Runner not specified")
+				return errors.New("Runner not specified")
 			}
 			return fmt.Errorf("%s is not a supported runner", t.Runner)
 		}
