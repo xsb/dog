@@ -23,6 +23,11 @@ type TaskChain struct {
 // Generate creates the TaskChain for a specific task.
 func (taskChain *TaskChain) Generate(d Dogfile, task string) error {
 
+	t, found := d.Tasks[task]
+	if !found {
+		return fmt.Errorf("Task %q does not exist", task)
+	}
+
 	// Cycle detection
 	for i := 0; i < len(taskChain.Tasks); i++ {
 		if taskChain.Tasks[i].Name == task {
@@ -31,8 +36,6 @@ func (taskChain *TaskChain) Generate(d Dogfile, task string) error {
 			}
 		}
 	}
-
-	t := d.Tasks[task]
 
 	// Iterate over pre-tasks
 	if err := addToChain(taskChain, d, t.Pre); err != nil {
