@@ -25,7 +25,11 @@ func main() {
 
 	// Launch the HTTP server
 	http.HandleFunc("/", handler)
-	http.ListenAndServe(":8080", nil)
+	err = http.ListenAndServe(":8080", nil)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
