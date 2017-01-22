@@ -133,12 +133,13 @@ func (taskChain *TaskChain) Run() error {
 	return nil
 }
 
-// formatDuration is a time formatter.
+// formatDuration returns a string representing a time duration in the format
+// {x}h{y}m{z}s, for example 3m25s.
 func formatDuration(d time.Duration) (s string) {
 	timeMsg := ""
 
 	if d.Hours() > 1.0 {
-		timeMsg += fmt.Sprintf("%1.0fh", d.Hours())
+		timeMsg = fmt.Sprintf("%1.0fh", d.Hours())
 	}
 
 	if d.Minutes() > 1.0 {
