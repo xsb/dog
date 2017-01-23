@@ -138,8 +138,7 @@ func (taskChain *TaskChain) Run() error {
 
 // formatDuration returns a string representing a time duration in the format
 // {x}h{y}m{z}s, for example 3m25s.
-func formatDuration(d time.Duration) (s string) {
-	timeMsg := ""
+func formatDuration(d time.Duration) (timeMsg string) {
 
 	if d.Hours() > 1.0 {
 		timeMsg = fmt.Sprintf("%1.0fh", d.Hours())
