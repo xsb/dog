@@ -41,7 +41,7 @@ func main() {
 	}
 
 	// Run task chain
-	err = tc.Run()
+	err = tc.Run(os.Stdout, os.Stderr)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(2)

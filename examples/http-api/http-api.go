@@ -46,7 +46,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Run task chain, HTTP client receives info about how task finished
-	err = tc.Run()
+	err = tc.Run(os.Stdout, os.Stderr)
 	if err != nil {
 		fmt.Fprintf(w, "%s failed: %s\n", taskName, err)
 		os.Exit(2)
