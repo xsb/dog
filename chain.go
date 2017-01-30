@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
 	"os/exec"
 	"syscall"
 	"time"
@@ -69,7 +68,7 @@ func addToChain(taskChain *TaskChain, d Dogfile, tasks []string) error {
 }
 
 // Run handles the execution of all tasks in the TaskChain.
-func (taskChain *TaskChain) Run() error {
+func (taskChain *TaskChain) Run(stdout, stderr io.Writer) error {
 	var startTime time.Time
 
 	for _, t := range taskChain.Tasks {
@@ -98,12 +97,13 @@ func (taskChain *TaskChain) Run() error {
 			return err
 		}
 
-		runOutput, err := run.CombinedOutput(runner)
+		runOut, runErr, err := run.GetOutputs(runner)
 		if err != nil {
 			return err
 		}
 
-		go io.Copy(os.Stdout, runOutput)
+		go io.Copy(stdout, runOut)
+		go io.Copy(stderr, runErr)
 
 		startTime = time.Now()
 		err = runner.Start()

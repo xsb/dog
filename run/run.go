@@ -50,21 +50,18 @@ func NewPerlRunner(code string, workdir string, env []string) (Runner, error) {
 	return newCmdRunner("perl", code, workdir, env)
 }
 
-// CombinedOutput is a helper method that returns combined (stdout and stderr)
-// output from the runner.
-func CombinedOutput(r Runner) (io.Reader, error) {
+// GetOutputs is a helper method that returns both stdout and stderr outputs
+// from the runner.
+func GetOutputs(r Runner) (io.Reader, io.Reader, error) {
 	stdout, err := r.StdoutPipe()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	stderr, err := r.StderrPipe()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	r1 := bufio.NewReader(stdout)
-	r2 := bufio.NewReader(stderr)
-
-	return io.MultiReader(r1, r2), nil
+	return bufio.NewReader(stdout), bufio.NewReader(stderr), nil
 }
