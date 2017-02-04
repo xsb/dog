@@ -203,7 +203,7 @@ Dogfiles don't have global variables, use registers instead.
 
 ### timeout*
 
-Timeout specifies the maximum amount of time a task is allowed to spend running. Once that time is reached execution stops and an error is returned.
+Timeout specifies the maximum amount of seconds a task is allowed to spend running. Once that time is reached execution stops and an error is returned.
 
 ```yml
 - task: example
