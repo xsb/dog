@@ -185,9 +185,9 @@ Additional parameters can be provided to the task that will be executed. All par
 
 The *regex* option and the *choices* option are mutually exclusive.
 
-### register*
+### register
 
-Registers store the STDOUT of executed tasks as environment variables so other tasks can get their value later if they are part of the same task-chain execution.
+Registers stores the output of tasks as environment variables so other tasks can get their value later if they are part of the same task-chain execution.
 
 ```yml
 - task: get-dog-version
