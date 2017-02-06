@@ -9,8 +9,7 @@
 - task: build
   description: Build dog binary for current platform
   pre: version
-  env:
-    - OUTPUT_PATH=dist/current
+  env: OUTPUT_PATH=dist/current
   code: |
     go build \
       -ldflags "-X main.Release=$DOG_VERSION -w" \
@@ -18,7 +17,7 @@
       cmd/dog/*.go
 
 - task: install-build-deps
-  description: Installs required dependencies for building dog
+  description: Install required dependencies for building dog
   code: go get -u github.com/mitchellh/gox
 
 - task: build-all
