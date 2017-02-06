@@ -1,4 +1,4 @@
-- task: version
+- task: get_version
   code: grep "const version" cmd/dog/main.go | cut -d'"' -f2
   register: DOG_VERSION
 
@@ -8,7 +8,7 @@
 
 - task: build
   description: Build dog binary for current platform
-  pre: version
+  pre: get_version
   env: OUTPUT_PATH=dist/current
   code: |
     go build \
@@ -28,7 +28,7 @@
   pre: 
     - install-build-deps
     - clean
-    - version
+    - get_version
   code: |
     gox \
       -os="${XC_OS}" \
