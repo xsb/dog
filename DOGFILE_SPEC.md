@@ -187,7 +187,7 @@ The *regex* option and the *choices* option are mutually exclusive.
 
 ### register
 
-Registers stores the output of tasks as environment variables so other tasks can get their value later if they are part of the same task-chain execution.
+Registers store the output of tasks as environment variables so other tasks can get their value later if they are part of the same task-chain execution.
 
 ```yml
 - task: get-dog-version
