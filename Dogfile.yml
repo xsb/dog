@@ -8,11 +8,10 @@
 
 - task: build
   description: Build dog binary for current platform
-  pre: get_version
   env: OUTPUT_PATH=dist/current
   code: |
     go build \
-      -ldflags "-X main.Release=$DOG_VERSION -w" \
+      -ldflags "-s -w" \
       -o "${OUTPUT_PATH}/dog" \
       cmd/dog/*.go
 
@@ -22,22 +21,21 @@
 
 - task: build-all
   description: Build dog binary for all platforms
-  env:
-    - XC_ARCH=386 amd64
-    - XC_OS=linux darwin freebsd openbsd solaris
   pre: 
     - install-build-deps
     - clean
-    - get_version
+  env:
+    - XC_ARCH=386 amd64
+    - XC_OS=linux darwin freebsd openbsd solaris
   code: |
     gox \
       -os="${XC_OS}" \
       -arch="${XC_ARCH}" \
-      -ldflags "-X main.Release=$DOG_VERSION -w" \
+      -ldflags "-s -w" \
       -output "dist/{{.OS}}_{{.Arch}}/dog" \
       ./cmd/dog/
 
-- task: dist
+- task: release
   description: Put all dist binaries in a compressed file
   pre: build-all
   code: |
