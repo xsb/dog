@@ -11,6 +11,9 @@ type Task struct {
 	// The code that will be executed.
 	Code string
 
+	// Parameters passed in to the code as arguments.
+	Params []TaskParam
+
 	// Defaults to operating system main shell.
 	Runner string
 
@@ -36,4 +39,11 @@ type Task struct {
 	// task chain runners using the register name as key and the output
 	// as value.
 	Register string
+}
+
+type TaskParam struct {
+	Name    string
+	Default string
+	Regex   Regex
+	Choices []string
 }

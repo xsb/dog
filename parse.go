@@ -41,6 +41,8 @@ type taskYAML struct {
 	Name        string `json:"task"`
 	Description string `json:"description,omitempty"`
 
+	Params []taskParam `json:"params,omitempty"`
+
 	Code string `json:"code"`
 	Run  string `json:"run"` // backwards compatibility for 'code'
 
@@ -53,6 +55,13 @@ type taskYAML struct {
 
 	Workdir  string `json:"workdir,omitempty"`
 	Register string `json:"register,omitempty"`
+}
+
+type taskParam struct {
+	Name    string   `json:"name"`
+	Default string   `json:"default, omitempty"`
+	Regex   string   `json:"regex, omitempty"`
+	Choices []string `json:"choices, omitempty"`
 }
 
 // Parse accepts a slice of bytes and parses it following the Dogfile Spec.
@@ -75,6 +84,7 @@ func Parse(p []byte) (dogfile Dogfile, err error) {
 			task := &Task{
 				Name:        parsedTask.Name,
 				Description: parsedTask.Description,
+				Params:      parsedTask.Params,
 				Code:        parsedTask.Code,
 				Runner:      parsedTask.Runner,
 				Workdir:     parsedTask.Workdir,
