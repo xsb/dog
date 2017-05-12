@@ -14,7 +14,7 @@ type Task struct {
 	Code string
 
 	// Parameters passed in to the code as arguments.
-	Params []Param
+	Params map[string]Param
 
 	// Defaults to operating system main shell.
 	Runner string
@@ -44,8 +44,10 @@ type Task struct {
 }
 
 type Param struct {
-	Name    string
-	Default *string
-	Regex   *regexp.Regexp
-	Choices *[]string
+	Name     string
+	Position int
+	Default  *string
+	Regex    *regexp.Regexp
+	Choices  *[]string
+	Value    string
 }

@@ -172,8 +172,8 @@ func parseStringSlice(str interface{}) ([]string, error) {
 	}
 }
 
-func parseTaskParams(params []taskParamYAML) ([]Param, error) {
-	parsedParams := make([]Param, len(params))
+func parseTaskParams(params []taskParamYAML) (map[string]Param, error) {
+	parsedParams := make(map[string]Param, len(params))
 	var paramRegex *regexp.Regexp
 	var err error
 
@@ -184,11 +184,12 @@ func parseTaskParams(params []taskParamYAML) ([]Param, error) {
 			}
 		}
 
-		parsedParams[i] = Param{
-			Name:    param.Name,
-			Default: param.Default,
-			Choices: param.Choices,
-			Regex:   paramRegex,
+		parsedParams[param.Name] = Param{
+			Name:     param.Name,
+			Position: i + 1,
+			Default:  param.Default,
+			Choices:  param.Choices,
+			Regex:    paramRegex,
 		}
 	}
 

@@ -193,10 +193,10 @@ func TestDogfileParseParams(t *testing.T) {
 
 	got := dogfile.Tasks["foo-with-args"].Params
 
-	want := []Param{
-		Param{Name: "one", Default: &[]string{"one"}[0]},
-		Param{Name: "two", Choices: &[]string{"two", "2"}},
-		Param{Name: "three", Regex: regexp.MustCompile("^(three|3)$")},
+	want := map[string]Param{
+		"one":   {Name: "one", Default: &[]string{"one"}[0], Position: 1},
+		"two":   {Name: "two", Choices: &[]string{"two", "2"}, Position: 2},
+		"three": {Name: "three", Regex: regexp.MustCompile("^(three|3)$"), Position: 3},
 	}
 
 	if !reflect.DeepEqual(got, want) {
