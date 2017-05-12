@@ -41,7 +41,7 @@ type taskYAML struct {
 	Name        string `json:"task"`
 	Description string `json:"description,omitempty"`
 
-	Params []taskParam `json:"params,omitempty"`
+	Params []taskParamYAML `json:"params,omitempty"`
 
 	Code string `json:"code"`
 	Run  string `json:"run"` // backwards compatibility for 'code'
@@ -57,11 +57,11 @@ type taskYAML struct {
 	Register string `json:"register,omitempty"`
 }
 
-type taskParam struct {
-	Name    string   `json:"name"`
-	Default string   `json:"default, omitempty"`
-	Regex   string   `json:"regex, omitempty"`
-	Choices []string `json:"choices, omitempty"`
+type taskParamYAML struct {
+	Name    string    `json:"name"`
+	Default *string   `json:"default, omitempty"`
+	Regex   *string   `json:"regex, omitempty"`
+	Choices *[]string `json:"choices, omitempty"`
 }
 
 // Parse accepts a slice of bytes and parses it following the Dogfile Spec.
@@ -84,7 +84,6 @@ func Parse(p []byte) (dogfile Dogfile, err error) {
 			task := &Task{
 				Name:        parsedTask.Name,
 				Description: parsedTask.Description,
-				Params:      parsedTask.Params,
 				Code:        parsedTask.Code,
 				Runner:      parsedTask.Runner,
 				Workdir:     parsedTask.Workdir,
@@ -100,6 +99,9 @@ func Parse(p []byte) (dogfile Dogfile, err error) {
 				return
 			}
 			if task.Env, err = parseStringSlice(parsedTask.Env); err != nil {
+				return
+			}
+			if task.Params, err = parseTaskParams(parsedTask.Params); err != nil {
 				return
 			}
 
@@ -170,6 +172,29 @@ func parseStringSlice(str interface{}) ([]string, error) {
 	}
 }
 
+func parseTaskParams(params []taskParamYAML) ([]Param, error) {
+	parsedParams := make([]Param, len(params))
+	var paramRegex *regexp.Regexp
+	var err error
+
+	for i, param := range params {
+		if param.Regex != nil {
+			if paramRegex, err = regexp.Compile(*param.Regex); err != nil {
+				return nil, err
+			}
+		}
+
+		parsedParams[i] = Param{
+			Name:    param.Name,
+			Default: param.Default,
+			Choices: param.Choices,
+			Regex:   paramRegex,
+		}
+	}
+
+	return parsedParams, nil
+}
+
 // ParseFromDisk finds a Dogfile in disk and parses it.
 func ParseFromDisk(dir string) (dogfile Dogfile, err error) {
 	if dir == "" {
@@ -230,6 +255,12 @@ func (dogfile *Dogfile) Validate() error {
 
 		if !validTaskName(t.Name) {
 			return fmt.Errorf("Invalid name for task %s", t.Name)
+		}
+
+		for _, p := range t.Params {
+			if !validParam(p) {
+				return fmt.Errorf("Invalid param %s for task %s", p.Name, t.Name)
+			}
 		}
 
 		if _, err := NewTaskChain(*dogfile, t.Name); err != nil {
@@ -299,4 +330,11 @@ func validTaskName(name string) bool {
 		return false
 	}
 	return match
+}
+
+// validParam checks if a param defines only a regex for
+// its own validation, or a list of choices. These options
+// are mutually exclusive.
+func validParam(param Param) bool {
+	return !(param.Regex != nil && param.Choices != nil)
 }

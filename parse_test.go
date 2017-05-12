@@ -2,6 +2,7 @@ package dog
 
 import (
 	"reflect"
+	"regexp"
 	"testing"
 )
 
@@ -42,6 +43,30 @@ func TestValidTaskName(t *testing.T) {
 		if got, want := validTaskName(test.input), test.expect; got != want {
 			t.Errorf("Test %d (%s): expected %v but was %v", i, test.input, want, got)
 		}
+	}
+}
+
+func TestValidParam(t *testing.T) {
+	param := Param{
+		Name:    "one",
+		Default: &[]string{"1"}[0],
+		Choices: &[]string{"1", "one", "uno"},
+	}
+
+	if got, want := validParam(param), true; got != want {
+		t.Errorf("Expected %v but was %v", want, got)
+	}
+}
+
+func TestInvalidParam(t *testing.T) {
+	param := Param{
+		Name:    "one",
+		Choices: &[]string{"1", "one", "uno"},
+		Regex:   regexp.MustCompile("^(1|one|uno)$"),
+	}
+
+	if got, want := validParam(param), false; got != want {
+		t.Errorf("Expected %v but was %v", want, got)
 	}
 }
 
@@ -140,6 +165,39 @@ func TestDogfileParsePreTasksArray(t *testing.T) {
 
 	got := dogfile.Tasks["lorem"].Pre
 	want := []string{"ipsum", "dolor"}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("Expected %v but was %v", want, got)
+	}
+}
+
+func TestDogfileParseParams(t *testing.T) {
+	dogfile, err := Parse([]byte(`
+- task: foo-with-args
+  description: Thing that prints foo with args
+  code: echo foo $1 $2 $3
+  params:
+    - name: one
+      default: one
+    - name: two
+      choices:
+        - two
+        - 2
+    - name: three
+      regex: ^(three|3)$
+  `))
+
+	if err != nil {
+		t.Fatalf("Failed to parse params list: %v", err)
+	}
+
+	got := dogfile.Tasks["foo-with-args"].Params
+
+	want := []Param{
+		Param{Name: "one", Default: &[]string{"one"}[0]},
+		Param{Name: "two", Choices: &[]string{"two", "2"}},
+		Param{Name: "three", Regex: regexp.MustCompile("^(three|3)$")},
+	}
 
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("Expected %v but was %v", want, got)

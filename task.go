@@ -1,5 +1,7 @@
 package dog
 
+import "regexp"
+
 // Task represents a task described in the Dogfile format.
 type Task struct {
 	// Name of the task.
@@ -12,7 +14,7 @@ type Task struct {
 	Code string
 
 	// Parameters passed in to the code as arguments.
-	Params []TaskParam
+	Params []Param
 
 	// Defaults to operating system main shell.
 	Runner string
@@ -41,9 +43,9 @@ type Task struct {
 	Register string
 }
 
-type TaskParam struct {
+type Param struct {
 	Name    string
-	Default string
-	Regex   Regex
-	Choices []string
+	Default *string
+	Regex   *regexp.Regexp
+	Choices *[]string
 }
