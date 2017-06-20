@@ -148,7 +148,7 @@ func (taskChain *TaskChain) Run(stdout, stderr io.Writer) error {
 
 		go func() {
 			c := make(chan os.Signal, 1)
-			signal.Notify(c, syscall.SIGINT, syscall.SIGTERM) // add whatever singals we want to catch
+			signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 			proc.Signal(<-c)
 			done <- struct{}{}
 		}()
