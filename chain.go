@@ -139,22 +139,20 @@ func (taskChain *TaskChain) Run(stdout, stderr io.Writer) error {
 		}
 
 		proc := runner.GetProcess()
-		done := make(chan struct{}, 1)
+		done := make(chan error, 1)
 
 		go func() {
-			runner.Wait()
-			done <- struct{}{}
+			done <- runner.Wait()
 		}()
 
 		go func() {
 			c := make(chan os.Signal, 1)
 			signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 			proc.Signal(<-c)
-			done <- struct{}{}
+			done <- nil
 		}()
 
-		<-done
-
+		err = <-done
 		if err != nil {
 			if exitError, ok := err.(*exec.ExitError); ok {
 				if waitStatus, ok := exitError.Sys().(syscall.WaitStatus); !ok {
