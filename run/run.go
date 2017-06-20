@@ -3,6 +3,7 @@ package run
 import (
 	"bufio"
 	"io"
+	"os"
 )
 
 // Runner just runs anything.
@@ -17,6 +18,10 @@ type Runner interface {
 
 	// Start starts the runner but does not wait for it to complete.
 	Start() error
+
+	// Process returns the underlying process once started
+	// It can be used for forwarding signals for graceful shutdown etc.
+	GetProcess() *os.Process
 
 	// Wait waits for the runner to exit. It must have been started by Start.
 	//

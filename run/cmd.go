@@ -40,6 +40,10 @@ func (c *runCmd) Wait() error {
 	return nil
 }
 
+func (c *runCmd) GetProcess() *os.Process {
+	return c.Process
+}
+
 // writeTempFile copies the code in a temporary file that will get passed as an
 // argument to the runner (as in `sh <tmpFile>`).
 func (c *runCmd) writeTempFile(data string, fileExtension string) error {

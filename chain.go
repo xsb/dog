@@ -6,9 +6,12 @@ import (
 	"fmt"
 	"io"
 	"os/exec"
+	"os/signal"
 	"strings"
 	"syscall"
 	"time"
+
+	"os"
 
 	"github.com/dogtools/dog/run"
 )
@@ -135,7 +138,23 @@ func (taskChain *TaskChain) Run(stdout, stderr io.Writer) error {
 			return err
 		}
 
-		err = runner.Wait()
+		proc := runner.GetProcess()
+		done := make(chan struct{}, 1)
+
+		go func() {
+			runner.Wait()
+			done <- struct{}{}
+		}()
+
+		go func() {
+			c := make(chan os.Signal, 1)
+			signal.Notify(c, syscall.SIGINT, syscall.SIGTERM) // add whatever singals we want to catch
+			proc.Signal(<-c)
+			done <- struct{}{}
+		}()
+
+		<-done
+
 		if err != nil {
 			if exitError, ok := err.(*exec.ExitError); ok {
 				if waitStatus, ok := exitError.Sys().(syscall.WaitStatus); !ok {
